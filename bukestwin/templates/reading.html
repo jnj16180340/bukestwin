@@ -1,0 +1,93 @@
+<!-- extend from base layout -->
+
+{% extends "base.html" %}
+{% block html_attribs %} ng-app="AnnApp" {% endblock %}
+
+{% block content %}
+
+<div id="IHaveNoIdea" class="col-md-6 col-md-offset-3">
+  <h1 class="text-center">buke's twin</h1>
+  <form action="" method="post" name="theform" id="theform" class="horizontal" role="form">
+      {{ form.hidden_tag() }}
+      {{ wtf.form_errors(form,hiddens="only") }} 
+      <div id="container" style="position: relative; overflow: hidden;">
+      <div style="width: 100%">{{ wtf.form_field(form.titleSeed,label=None,horizontal_columns=('lg', 1, 1)) }}</div>
+      <div style="width: 100%; position:relative; float:left">{{ wtf.form_field(form.howDrunk,label=None,horizontal_columns=('lg', 1, 1)) }}</div>
+      <div style="width: 100%; position:relative; float:center; bottom:0" class="col-md-2 col-md-offset-5"><input type="submit" value="write it" class="btn"></div>
+      <!-- <div style="width: 50%">{{ wtf.quick_form(form,horizontal_columns=('lg', 1, 1)) }}</div> -->
+      </div>
+      
+  </form>
+
+  <!-- Eventually this should go in its own page -->
+<br>
+<!--
+<div id="results">
+<h1>{{poemTitle}}</h1>
+<body>{{poemContent}}</body>
+<h3>How drunk? {{poemHowDrunk}}</h3>
+<h3>Job ID is {{jobId}}</h3>
+</div>
+-->
+
+<div id="results" class="col-md-12"></div>
+
+<!-- for polling are results ready -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/nanobar/0.2.1/nanobar.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script>
+    function start_long_task(jobId) {
+        // add task status elements
+        var jobUrl = '/results/'+jobId;
+        console.log(jobUrl);
+
+        div = $('<div class="results-container"><div class="nanobar-container"></div><div class="percent-done"></div><div class="h1" id="poem-title"></div><div class="lead" id="poem-text">&nbsp;</div><div id="how-drunk" class="italic"></div></div><hr>');
+        setTimeout(function(){update_progress(jobUrl, nanobar, div[0]);},2000);
+        
+        $('#results').append(div);        
+        // create a progress bar
+        var nanobar = new Nanobar({
+            bg: '#44f',
+            target: div[0].childNodes[0]
+        });
+        nanobar.go(0);
+    }
+    function update_progress(jobUrl, nanobar, status_div) {
+        // send GET request to status URL
+        $.ajax({
+            type: 'GET',
+            url: jobUrl,
+            error: function() {console.log("error getting results");},
+            statusCode: {
+                202: function(data){
+                    console.log("not done");
+                    console.log(data)
+                    percent = Math.round(Math.random()*100);
+                    nanobar.go(percent);
+                    $(status_div.childNodes[1]).text(percent + '% (poetic inspiration CANNOT be rushed or quantified)');
+                    setTimeout(function(){update_progress(jobUrl, nanobar, status_div);},2000)
+                    },
+                200: function(data){
+                    console.log("done");
+                    console.log(data);
+                    percent = 100;
+                    nanobar.go(percent);
+                    $(status_div.childNodes[1]).text("");
+                    $(status_div.childNodes[2]).text(data['title']);
+                    $(status_div.childNodes[3]).html(data['poem']);
+                    //$(status_div.childNodes[4]).text("I was "+Math.round(data['howdrunk']*100)+' % drunk');
+                    
+                    }
+                      }
+            });
+        
+    }
+    $(function() { // this is shorthand for document.ready function??
+        //console.log({{jobId}});
+        //console.log("started job?");
+        //$('#btn').click(start_long_task("{{jobId}}"));
+        $('#theform').on('submit', start_long_task("{{jobId}}"));
+    });
+</script>
+</div>
+{% endblock %}

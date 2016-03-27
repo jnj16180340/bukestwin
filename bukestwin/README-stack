@@ -1,0 +1,21 @@
+# in directory /home/nate/Projects/Buke/Website/bukestwin
+
+# Python virtual environment flask:
+# use /flask/bin/pip3 etc
+python3 -m venv flask
+
+# Redis server at
+../redis-3.0.7/src/redis-server
+
+# IMPORTANT! Otherwise, there's nothing to process all the stuff in the Redis queue...
+flask/bin/python3 redis-worker.py 
+
+
+# Save list of pip packages
+flask/bin/pip3 freeze > pip-requirements.txt
+
+# If uWSGI is behaving strangely (starting flask dev server) try deleting __pycache__/ in . and app/
+
+sudo docker build -t myimage .
+ sudo docker run -t -i myimage /bin/bash
+ sudo docker run --name mycontainer -p 80:80 myimage

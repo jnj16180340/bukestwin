@@ -1,0 +1,17 @@
+Worker script to sample network: Make this better and mode efficient
+RQ: error handling
+Title-seed-free mode
+Layout for results-- Reorder it
+Multiple workers, set them up
+Script to run errything
+Deploy on container
+Reinstall OS on other laptop
+CUDA on the server...!
+Limit number of jobs one client can start/ starting new job kills the old one
+Position in the queue
+
+Sampling workaround:
+
+Split at \n\n or \n\nTITLE:
+If there's no \n\n or \n\nTITLE, then
+sample again with seed = last line.
