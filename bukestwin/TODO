@@ -1,15 +1,14 @@
-Worker script to sample network: Make this better and mode efficient
 RQ: error handling
 Title-seed-free mode
-Layout for results-- Reorder it
 Multiple workers, set them up
-Script to run errything
-Deploy on container
-Reinstall OS on other laptop
 CUDA on the server...!
 Limit number of jobs one client can start/ starting new job kills the old one
-Position in the queue
+    e.g. use session? add session key to rq job and delete all jobs w/ session key when new job submitted??
+Report Position in the queue
 
+Get rid of flash messages?
+
+Worker script to sample network: Make this better and mode efficient
 Sampling workaround:
 
 Split at \n\n or \n\nTITLE:
