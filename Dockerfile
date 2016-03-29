@@ -31,8 +31,6 @@ EXPOSE 80 443
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 # Remove default configuration from Nginx
 RUN rm /etc/nginx/conf.d/default.conf
-# Copy the modified Nginx conf
-COPY nginx.conf /etc/nginx/conf.d/
 
 ##############################################################################
 # Install Redis.
@@ -63,7 +61,6 @@ EXPOSE 6379:6379
 RUN apt-get update && apt-get install -y supervisor \
 && rm -rf /var/lib/apt/lists/*
 # Custom Supervisord config
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 ###############################################################################
 # Install flask and other python dependencies of the flask app
@@ -93,9 +90,6 @@ RUN pip3 install rq rq-dashboard
 # don't bother with the preprocessing script (+py2.7 venv) because we don't need to train
 
 ###############################################################################
-# Copy the Flask app
-# NB this can't be above the build path! so ./bukestwin is a symlink to ../Buke/Website/bukestwin
-COPY ./bukestwin /bukestwin
 ###############################################################################
 # CUDA
 # is NOT happening right now.
@@ -125,10 +119,10 @@ RUN lsb_release -a
 RUN echo 'DISTRIB_ID=Ubuntu\nDISTRIB_RELEASE=14.04\nDISTRIB_CODENAME=trusty\nDISTRIB_DESCRIPTION="Ubuntu 14.04.4 LTS"' > /etc/lsb-release
 RUN echo 'NAME="Ubuntu"\nVERSION="14.04.4 LTS, Trusty Tahr"\nID=ubuntu\nID_LIKE=debian\nPRETTY_NAME="Ubuntu 14.04.4 LTS"\nVERSION_ID="14.04"\nHOME_URL="http://www.ubuntu.com/"\nSUPPORT_URL="http://help.ubuntu.com/"\nBUG_REPORT_URL="http://bugs.launchpad.net/ubuntu/"' > /etc/os-release
 
-RUN echo AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-RUN cat /etc/lsb-release
-RUN cat /etc/os-release
-RUN echo AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+#RUN echo AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+#RUN cat /etc/lsb-release
+#RUN cat /etc/os-release
+#RUN echo AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
 RUN bash install-deps
 RUN ./install.sh -b
@@ -154,11 +148,21 @@ WORKDIR /root/
 RUN git clone https://github.com/jcjohnson/torch-rnn
 
 ###############################################################################
+# Copy config files and the webapp.
+# All at the end, so rebuilding image w/ modified config files doesn't rebuild deps
+# TODO: Split into separate containers+networking
 # Copy trained models
 COPY checkpoints/* /root/cv_0/
+# Copy nginx config file
+COPY nginx.conf /etc/nginx/conf.d/
+# Copy supervisord config file
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# Copy the Flask app
+# NB this can't be above the build path! so ./bukestwin is a symlink to ../Buke/Website/bukestwin
+COPY ./bukestwin /bukestwin
 ###############################################################################
 # for debugging
-RUN apt-get install nano
+RUN apt-get install -y nano
 # do ENV instead of RUN export ...
 ENV TERM=xterm
 
