@@ -108,7 +108,8 @@ def generate_text(seed, howdrunk):
         # TODO this stuff is fragile
         thecommand = '/root/torch/install/bin/th sample.lua -checkpoint /root/cv_0/cv3x512_117000.t7 -length 3000 -gpu -1 -temperature '+str(howdrunk)+' -start_text "TITLE: '+seed+'"'
         theoutput = subprocess.getoutput(thecommand)
-        print(theoutput)
+        if app.debug:
+            print(theoutput)
 
         # TODO scan for complete chunk and seed NN with last line if necessary until done
         # also this fails when separator isn't quite perfect, splittting on title is better or do regex
@@ -123,4 +124,4 @@ def generate_text(seed, howdrunk):
         seed = poem[:poem.find('\n')].replace('TITLE:','')
         return seed, howdrunk, poem[poem.find('\n'):].replace('\n','<br>')
     except:
-        return 'shame',0.42,"there now is a server online\nthat's having a very bad time\nit ran lua-jit\nand crashed all to shit\nthen wrote you this very bad rhyme".replace('\n','<br>')
+        return 'shame',0.42,"there now is a server online\nthat's having a very bad time\nit ran lua-jit\nand crashed all to shit\nthen wrote you this bad little rhyme".replace('\n','<br>')
