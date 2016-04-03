@@ -2,16 +2,14 @@ from app import app
 from flask import redirect, render_template, flash, jsonify
 
 from .forms import InputForm
-from app import q # RQ queue from __init_.py
+from app import q # RQ queue from __init__.py
 from rq.job import Job
 from worker import conn
 
-import time # for testing
 import simplejson as json
 
 @app.route('/',methods=['GET','POST'])
 def index():
-    #return 'Smoke, Deew!'
     form = InputForm()
     
     if form.validate_on_submit():
@@ -46,24 +44,40 @@ def nothing_to_see_here():
 @app.route("/results/<job_key>", methods=['GET'])
 def get_results(job_key):
     ''' check to see if job is finished '''
+    # TODO: Return position in the queue
+    # should be nicer with _job_stack
     job = Job.fetch(job_key, connection=conn)
-    
+    if app.debug:
+        if job.get_status() == 'started':
+            print('JOB IS RUNNING NOW')
+        if job.get_status() == 'queued': # 'queued' or 'started' etc, no position
+            print('QUEUED AT: \n')
+            print(q.job_ids.index(job_key))
+            #print(len(q))
     #if job.is_failed:
       #  return "Failed", 500 # 500 = internal server error
 
     if job.is_finished:
-        #return str(job.result), 200 # OK
         keys = ('title', 'howdrunk', 'poem')
-        print(job.result)
+        if app.debug:
+            print(job.result)
         return jsonify(zip(keys, job.result)),200
-        #return "Yay", 200 # OK
     else:
-        return "Nay", 202 # 202 = accepted (processing not completed)
+        #return "Nay", 202 # 202 = accepted (processing not completed)
+        # TODO: jsonify doesn't like 1-element lists. making a 2-element list w/ 'null' cause i don't want to figure it out rn
+        keys = ('null','status') # a message to the user, nothing more
+        if job.get_status() == 'started': # 'queued' or 'started' etc, no position
+            return jsonify(zip(keys, ("null","Writing your poem now!"))),202
+        if job.get_status() == 'queued':
+            position = q.job_ids.index(job_key)
+            return jsonify(zip(keys, ("null","there are still "+str(position)+" poems more important than yours left to be written-- wait for it."))),202
+        return jsonify(zip(keys,("null","job's fucked")), 500
 
 ##################################################################################3
 ### Call th sampling stuff
 ### This should be in a separate file
 # should this be in views.py
+# should NOT be generating one 2000 charcter chunk... generate in chunks of 500, reseed w/ last line if no end
 def generate_text(seed, howdrunk):
     ''' calls th sample... 
     '''

@@ -41,7 +41,7 @@
         var jobUrl = '/results/'+jobId;
         console.log(jobUrl);
 
-        div = $('<div class="results-container"><div class="nanobar-container"></div><div class="percent-done"></div><div class="h1" id="poem-title"></div><div class="lead" id="poem-text">&nbsp;</div><div id="how-drunk" class="italic"></div></div><hr>');
+        div = $('<div class="results-container"><div class="nanobar-container"></div><div class="percent-done"></div><div class="queue-info"></div><div class="h1" id="poem-title"></div><div class="lead" id="poem-text">&nbsp;</div><div id="how-drunk" class="italic"></div></div><hr>');
         setTimeout(function(){update_progress(jobUrl, nanobar, div[0]);},2000);
         
         $('#results').append(div);        
@@ -65,6 +65,7 @@
                     percent = Math.round(Math.random()*100);
                     nanobar.go(percent);
                     $(status_div.childNodes[1]).text(percent + '% (poetic inspiration CANNOT be rushed or quantified)');
+                    $(status_div.childNodes[2]).text(data['status']);
                     setTimeout(function(){update_progress(jobUrl, nanobar, status_div);},2000)
                     },
                 200: function(data){
@@ -73,8 +74,9 @@
                     percent = 100;
                     nanobar.go(percent);
                     $(status_div.childNodes[1]).text("");
-                    $(status_div.childNodes[2]).text(data['title']);
-                    $(status_div.childNodes[3]).html(data['poem']);
+                    $(status_div.childNodes[2]).text("");
+                    $(status_div.childNodes[3]).text(data['title']);
+                    $(status_div.childNodes[4]).html(data['poem']);
                     //$(status_div.childNodes[4]).text("I was "+Math.round(data['howdrunk']*100)+' % drunk');
                     
                     }
