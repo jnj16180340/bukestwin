@@ -1,23 +1,32 @@
 from app import app
-from flask import redirect, render_template, flash, jsonify
+from flask import redirect, render_template, flash, jsonify, session
 
 from .forms import InputForm
 from app import q # RQ queue from __init__.py
 from rq.job import Job
+from rq import cancel_job
 from worker import conn
 
 import simplejson as json
 
+def sessionJobInit():
+  try:
+      print(session['job'])
+  except KeyError:
+      session['job'] = None
+
 @app.route('/',methods=['GET','POST'])
 def index():
     form = InputForm()
-    
+    sessionJobInit() # can we avoid this?
     if form.validate_on_submit():
         if app.debug:
             flash('Generating poem with title %s at drunkenness %s' %(form.titleSeed.data, str(form.howDrunk.data)))
         #return redirect('/')
-        job = q.enqueue_call(func=generate_text, args=(form.titleSeed.data,form.howDrunk.data),result_ttl=300, timeout=60) # TODO: Adjust ttl (how long redis holds on to the result)
-        # TODO: Other timeout options...?
+        if session['job']:
+            cancel_job(session['job'], connection=conn)
+        job = q.enqueue_call(func=generate_text, args=(form.titleSeed.data,form.howDrunk.data),result_ttl=300, timeout=6000)
+        session['job'] = job.get_id()
         print(job.get_id()) # e.g. 66df343f-2841-4fd2-986d-b83d459a6693
         return render_template('reading.html', pageTitle=None, form=form, poemTitle=form.titleSeed.data, poemHowDrunk=str(form.howDrunk.data), poemContent='BIG ASS TITS', jobId = job.get_id())
     
