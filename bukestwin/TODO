@@ -1,16 +1,20 @@
 RQ: error handling
-Title-seed-free mode
-Multiple workers, set them up
+RQ: remove dead jobs using queue.compact()
+
+# Multiple workers, set them up
 CUDA on the server...!
 Limit number of jobs one client can start/ starting new job kills the old one
     e.g. use session? add session key to rq job and delete all jobs w/ session key when new job submitted??
-Report Position in the queue
-
-Get rid of flash messages?
+    Implement more better
+    Test it some more
 
 Worker script to sample network: Make this better and mode efficient
 Sampling workaround:
 
-Split at \n\n or \n\nTITLE:
+Split at \n\n\n or \n\n\nTITLE:
 If there's no \n\n or \n\nTITLE, then
 sample again with seed = last line.
+
+Poems seeded with blank ("TITLE: ") start out kinda janky. Usually the 2nd or 3rd poem generateed (which is discarded!) is much better.
+
+NB does rnn's state clear between sampling (yes), if chaining reseeds we can't do this
