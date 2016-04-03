@@ -64,7 +64,7 @@
                     console.log(data)
                     percent = Math.round(Math.random()*100);
                     nanobar.go(percent);
-                    $(status_div.childNodes[1]).text(percent + '% (poetic inspiration CANNOT be rushed or quantified)');
+                    $(status_div.childNodes[1]).text(percent + '% (art should not be rushed or quantified)');
                     $(status_div.childNodes[2]).text(data['status']);
                     setTimeout(function(){update_progress(jobUrl, nanobar, status_div);},2000)
                     },

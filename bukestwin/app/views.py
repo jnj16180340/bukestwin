@@ -95,7 +95,7 @@ def generate_text(seed, howdrunk):
     # params: seed, howdrunk
     # returns: seed, howdrunk, text
     try:
-        POEM_SEPARATOR = '\n\n'
+        POEM_SEPARATOR = '\n\n\n' # in addition to the 2 lines between poems, each one also ends with a newline :)
 
         # TODO this is really shitty
         old_dir = os.getcwd()
@@ -106,13 +106,16 @@ def generate_text(seed, howdrunk):
         #thecommand = 'th sample.lua -checkpoint cv_0/cv3x512_39000.t7 -length 2000 -gpu -1 -temperature '+str(howdrunk)+' -start_text "TITLE: '+seed+'"'
         # for docker, with checkpoints in /root/cv_0 etc
         # TODO this stuff is fragile
-        thecommand = '/root/torch/install/bin/th sample.lua -checkpoint /root/cv_0/cv3x512_117000.t7 -length 2000 -gpu -1 -temperature '+str(howdrunk)+' -start_text "TITLE: '+seed+'"'
+        thecommand = '/root/torch/install/bin/th sample.lua -checkpoint /root/cv_0/cv3x512_117000.t7 -length 3000 -gpu -1 -temperature '+str(howdrunk)+' -start_text "TITLE: '+seed+'"'
         theoutput = subprocess.getoutput(thecommand)
         print(theoutput)
 
         # TODO scan for complete chunk and seed NN with last line if necessary until done
         # also this fails when separator isn't quite perfect, splittting on title is better or do regex
-        poem = theoutput.split(POEM_SEPARATOR)[0]
+        if len(seed)>0:
+            poem = theoutput.split(POEM_SEPARATOR)[0]
+        else:
+            poem = theoutput.split(POEM_SEPARATOR)[1]
         # theoutput.split(POEM_SEPARATOR)[1].split('\n')[-1]
 
         # TODO this is reallyl shitty
