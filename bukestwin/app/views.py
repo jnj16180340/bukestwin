@@ -13,7 +13,8 @@ def index():
     form = InputForm()
     
     if form.validate_on_submit():
-        flash('Generating poem with title %s at drunkenness %s' %(form.titleSeed.data, str(form.howDrunk.data)))
+        if app.debug:
+            flash('Generating poem with title %s at drunkenness %s' %(form.titleSeed.data, str(form.howDrunk.data)))
         #return redirect('/')
         job = q.enqueue_call(func=generate_text, args=(form.titleSeed.data,form.howDrunk.data),result_ttl=300, timeout=60) # TODO: Adjust ttl (how long redis holds on to the result)
         # TODO: Other timeout options...?
@@ -64,14 +65,14 @@ def get_results(job_key):
         return jsonify(zip(keys, job.result)),200
     else:
         #return "Nay", 202 # 202 = accepted (processing not completed)
-        # TODO: jsonify doesn't like 1-element lists. making a 2-element list w/ 'null' cause i don't want to figure it out rn
+        # TODO: jsonify doesn't like 1-element lists. making a 2-element l
         keys = ('null','status') # a message to the user, nothing more
         if job.get_status() == 'started': # 'queued' or 'started' etc, no position
-            return jsonify(zip(keys, ("null","Writing your poem now!"))),202
+            return jsonify(zip(keys, ("null","writing your poem now!"))),202
         if job.get_status() == 'queued':
             position = q.job_ids.index(job_key)
             return jsonify(zip(keys, ("null","there are still "+str(position)+" poems more important than yours left to be written-- wait for it."))),202
-        return jsonify(zip(keys,("null","job's fucked")), 500
+        return jsonify(zip(keys,("null","job's fucked"))), 500
 
 ##################################################################################3
 ### Call th sampling stuff
