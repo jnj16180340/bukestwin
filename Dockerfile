@@ -123,8 +123,10 @@ RUN echo 'NAME="Ubuntu"\nVERSION="14.04.4 LTS, Trusty Tahr"\nID=ubuntu\nID_LIKE=
 #RUN cat /etc/lsb-release
 #RUN cat /etc/os-release
 #RUN echo AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-
-RUN bash install-deps
+RUN ls
+# The script is fukt and I don't know why
+RUN apt-get install -y libopenblas-base libopenblas-dev build-essential curl cmake libreadline-dev git-core libqt4-dev libjpeg-dev libpng-dev ncurses-dev imagemagick libzmq3-dev gfortran unzip gnuplot libgraphicsmagick1-dev libfftw3-dev sox libsox-dev
+#RUN bash ./install-deps
 RUN ./install.sh -b
 #RUN source /root/.bashrc
 # equivalent of source .bashrc
